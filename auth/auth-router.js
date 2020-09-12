@@ -1,4 +1,3 @@
-const express = require("express")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const Users = require("./auth-model")
@@ -35,15 +34,16 @@ router.post('/login', async (req, res, next) => {
     if(user){
       const passwordValid = await bcrypt.compare(password, user.password)
       if(passwordValid){
-        const token = jwt.sign({ userID: user.id }, "Mega safe")
         
-        res.cookie("token", token)
+        req.session.user = user
         
         res.json({
             message: `Welcome ${user.username}!`,
         })
       }
-      else{}
+      else{
+        return res.status(401).json({ message: "You shall not pass!" })
+      }
     }
     else{ 
       return res.status(401).json({ message: "You shall not pass!" })
@@ -52,6 +52,15 @@ router.post('/login', async (req, res, next) => {
   catch(err){
     next(err)
   }
+})
+
+router.get("/users", restrict(),  async (req, res, next) =>{
+  
+  try{
+    res.json(await Users.findAll())
+  }
+  catch(err){next(err)}
+
 })
 
 module.exports = router;

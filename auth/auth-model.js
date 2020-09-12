@@ -17,9 +17,13 @@ function findById(id) {
 		.where({ id })
 		.first()
 }
+function findAll() {
+	return db("users").select("id", "username")
+}
 
 module.exports = {
     add,
     findBy,
-    findById
+    findById,
+    findAll
 }
